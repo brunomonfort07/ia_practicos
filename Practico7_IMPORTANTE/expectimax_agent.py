@@ -22,9 +22,11 @@ class AgentExpectimax(Agent):
 
 
         # TODO: Completar
-
         # Caso base
-
+        gameEnded, finalValue = board.is_end() # finalValue = U(s)
+        if (gameEnded):
+            return None, finalValue
+        
         # Casos no base
         actions = board.get_available_cells()
         action_nodes = []
@@ -37,9 +39,30 @@ class AgentExpectimax(Agent):
         chosen_action = None
         if player != self.player:  # Expecti
             # Calcular valor promedio de las acciones del oponente
-            pass
+            total_value = 0
+            for child_node in action_nodes:
+                node_action = child_node[0]
+                node_board = child_node[1]
+                _, uAux = self.expectimax(node_board, self.next_player(player), depth - 1)
+                total_value += uAux
+            #  la función pol_prob(s, a) representa la probabilidad de que en el estado s se elija la acción a
+
+            value = total_value / len(action_nodes)
+            # print("Current Value", value)
         else:  # max
             # Buscar acción que maximiza el valor
-            pass
+            value = float('-inf')
+            for child_node in action_nodes:
+                node_action = child_node[0]
+                node_board = child_node[1]
+                _, uAux = self.expectimax(node_board, self.next_player(player), depth - 1)
+                if uAux > value:
+                    chosen_action, value = node_action, uAux
+
+        # pol_prob(s, a) representa la probabilidad de que en el estado s se elija la acción a
+        # juego.suc(s, a) devuelve el nuevo estado que resulta de aplicar la acción a sobre el estado s.
 
         return chosen_action, value
+
+    def next_player(self, player: int):
+        return (player % 2) + 1
